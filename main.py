@@ -1,3 +1,2 @@
-from environment.simple.othello import othello
-o = othello()
-o.Seek()
+from environment.simple.othello import othello,dealer
+d = dealer()
