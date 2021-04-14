@@ -1,37 +1,58 @@
 import numpy as np
 from enum import Enum
 
-class field():
+class Field():
     field = ""
     def __init__(self,scale):
-        field = np.zeros((scale,scale))
-        left = scale/2 - 1
-        right = scale/2
-        black = color.black
-        white = color.white
+        #scale은 짝수
+        #scale is even number
+        Field.createFieldWithScale(scale)
+        try:
+            self.field = Field.createFieldWithScale(scale)
+        except:
+            print("field:__init__:ERR-parameter invalid")
 
-        field[left,left] = black
-        field[left,right] = white
-        field[right,left] = white
-        field[right,right] = black
-        self.field = field
+    def convertToNode(self):
+        return Field.FileToNode(self.field)
 
-    @classmethod
+    def setFieldWithNode(self,arr):
+        self.Field = NodeToField(arr)
+
+    @staticmethod
+    def createFieldWithScale(scale):
+        field =""
+        if scale %2 == 0:
+            field = np.zeros((scale,scale))
+            left = int(scale/2 - 1)
+            right = int(scale/2)
+            black = color.black.value
+            white = color.white.value
+            field[left][left] = black
+            field[left][right] = white
+            field[right][left] = white
+            field[right][right] = black
+        else:
+            raise
+        return field
+
+    @staticmethod
     def NodeToField(cls,arr):
         result = 0
-        if (arr.dtype == field.dtype):
+        try:
             result = arr.reshape(8,8)
-        else:
+        except:
             print("field:nodeToField:ERR-type miss match")
         return result
-    @classmethod
+
+    @staticmethod
     def FieldToNode(cls,field):
         result = 0
-        if (field.dtype == self.field.dtype):
+        try:
             result = field.reshape(64)
-        else:
+        except:
             print("field:FieldToNode:ERR-type miss match")
         return result
+
 
 class color(Enum):
     black = 1
@@ -104,22 +125,10 @@ class dealer():
     p2 = ""
     field = ""
 
-    functionDict = {}
-    #딜러는 오셀로 게임과 동시에 생성되며 게임 그 자체이기도 하면서 게임 관리자이다. 스스로 종료 가능하다
-    def CreateField(self):
-         field = np.zeros((8,8))
-         white = color.white.value
-         black = color.black.value
-         field[3][3] = black
-         field[3][4] = white
-         field[4][3] = white
-         field[4][4] = black
-         return field
-
     def __init__(self):
-        self.field = self.CreateField()
+        self.field = Field(8)
         self.p1 = othello(self.field,first = "me").Link(self)
         self.p2 = othello(self.field,first = "you").Link(self,self.p1)
         self.p1.Link(self,self.p2)
-        print(self.field)
+        print(self.field.field)
 
