@@ -1,4 +1,5 @@
 import numpy as np
+from lib.log.error import ErrorManagement as E
 from enum import Enum
 
 class Field():
@@ -127,11 +128,12 @@ class dealer():
     turn = ""
 
     def __init__(self):
+        E.err("hello")
         self.field = Field(8)
         self.p1 = othello(self.field,first = "me").Link(self)
         self.p2 = othello(self.field,first = "you").Link(self,self.p1)
         self.p1.Link(self,self.p2)
-        self.turn = p1
+        self.turn = self.p1
         print(self.field.field)
 
     def oneStep(self):
