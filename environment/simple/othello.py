@@ -124,11 +124,26 @@ class dealer():
     p1 = ""
     p2 = ""
     field = ""
+    turn = ""
 
     def __init__(self):
         self.field = Field(8)
         self.p1 = othello(self.field,first = "me").Link(self)
         self.p2 = othello(self.field,first = "you").Link(self,self.p1)
         self.p1.Link(self,self.p2)
+        self.turn = p1
         print(self.field.field)
+
+    def oneStep(self):
+        #누가 둘 차례인지 감지한다
+        # = self.turn
+        #감지한 플레이어에게 현재 필드상황을 알려주며 돌을 놓는 함수를 실행
+        #플레이어가 놓은 곳을 감지한다
+        here = self.turn.Lay(self.field)
+        #필드를 수정한다
+        self.modifyField(here,self.turn)
+        self.turn = self.turn.opponent
+
+        #만약 플레이어가 돌을 놓을 수 없다면 다음 플레이어에게 순서를 넘긴다. 이때 턴넘김 변수를 수정하여
+        #두 플레이어가 연속으로 턴을 넘길 경우 그대로 게임이 종료되도록 한다
 
