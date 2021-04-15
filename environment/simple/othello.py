@@ -122,6 +122,7 @@ class othello:
 
 
 class dealer():
+    #othello를 제어
     p1 = ""
     p2 = ""
     field = ""
