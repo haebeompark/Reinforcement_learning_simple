@@ -16,7 +16,7 @@ class Field():
             E.err("field:__init__:ERR-parameter invalid")
 
     def convertToNode(self):
-        return Field.FileToNode(self.field)
+        return Field.FieldToNode(self.field)
 
     def setFieldWithNode(self,arr):
         self.Field = NodeToField(arr)
@@ -37,14 +37,15 @@ class Field():
                 column += att
             print(column)
 
-    @staticmethod            
+    @staticmethod
     def convertShapeForDisplay(att):
+        # 보여주기 위해 변환
         if att == color.black.value:
-            return '⚫'
+            return 'O'
         elif att == color.white.value:
-            return '⚪'
+            return 'X'
         else:
-            return '  '
+            return '_'
 
     @staticmethod
     def createFieldWithScale(scale):
