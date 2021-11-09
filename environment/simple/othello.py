@@ -9,9 +9,9 @@ class Field():
         #scale은 짝수
         #scale is even number
         self.scale = scale
-        Field.createFieldWithScale(scale)
         try:
             self.field = Field.createFieldWithScale(scale)
+            # numpy타입의 2차원배열 생성됨 (scale by scale)
         except:
             E.err("field:__init__:ERR-parameter invalid")
 
@@ -19,7 +19,7 @@ class Field():
         return Field.FieldToNode(self.field)
 
     def setFieldWithNode(self,arr):
-        self.Field = NodeToField(arr)
+        self.Field = Field.NodeToField(arr)
 
     def display(self):
         field = self.field
@@ -61,7 +61,7 @@ class Field():
             field[right][left] = white
             field[right][right] = black
         else:
-            raise
+            raise #scale이 odd인경우 에러 발생시키기
         return field
 
     @staticmethod
@@ -81,7 +81,131 @@ class Field():
         except:
             E.err("field:FieldToNode:ERR-type miss match")
         return result
-
+    
+    @staticmethod
+    def Reverse(cls, field, here: int, myColor, scale: int):
+        # scale이 8일 때
+        # here : 0~63
+        # x : 0~7
+        # y : 0~7
+        x = int(here) / int(scale)
+        y = int(here) % int(scale)
+        # + 증가, 0 부동, - 감소 하는 쪽으로의 방향을 뜻한다.
+        # 첫번째 시도 : (x,y)에 대하여 (+,0) 방향
+        if x >= 6 :
+            # x가 6 또는 7인 경우 탐색할 필요가 없음.
+            pass
+        else:
+            for i in range (x+1, 8):
+                # x+2부터 7까지의 자리를 탐색하게 된다. x+1자리에 같은색 돌이 있으면 뒤집을 수 없다.
+                if field[i,y] == color.empty.value:
+                    # 같은 색의 돌보다 빈자리를 먼저 탐색했다면 절대 뒤집을 수 없다. 여기서 skip
+                    break
+                elif field[i,y] == myColor:
+                    #가장 근접한 돌 발견시 사이에 있는 다른 돌들을 전부 뒤집는다.
+                    for k in range(x+1, i):
+                        field[k,y] = myColor
+                    break
+        # 두번째 시도 : (x,y)에 대하여 (-,0) 방향
+        if x <= 1 :
+            # x가 0또는 1인 경우 탐색할 필요가 없음.
+            pass
+        else:
+            for i_r in range (8-x, 8):
+                i = 7-i_r
+                # i : x-1 ~ 0 DESC
+                if field[i,y] == color.empty.value:
+                    break
+                elif field[i,y] == myColor:
+                    for k in range(i+1, x):
+                        field[k,y] = myColor
+        # 세번째, 네번째 시도 : x로 적힌것을 y로 변경 (0,+), (0,-)방향
+        if y >= 6 :
+            # x가 6 또는 7인 경우 탐색할 필요가 없음.
+            pass
+        else:
+            for i in range (y+1, 8):
+                if field[x,i] == color.empty.value:
+                    break
+                elif field[x,i] == myColor:
+                    for k in range(x+1, i):
+                        field[x,k] = myColor
+                    break
+        if y <= 1 :
+            pass
+        else:
+            for i_r in range (8-y, 8):
+                i = 7-i_r
+                # i : x-1 ~ 0 DESC
+                if field[x,i] == color.empty.value:
+                    break
+                elif field[x,i] == myColor:
+                    for k in range(i+1, x):
+                        field[x,k] = myColor
+        # 다섯번째부터는 대각선 방향을 탐색한다.
+        # 다섯번째 : (+,+)방향
+        if x >=6 or y>=6:
+            pass
+        else:
+            M = max(x,y)
+            maxCount = 8-M
+            # 둘중 큰값에 의해 탐색의 최대치가 정해진다.
+            for i_plus in range(1, maxCount):
+                if field[x+i_plus,y+i_plus] == color.empty.value:
+                    break
+                elif field[x+i_plus,y+i_plus] == myColor:
+                    for k_plus in range(1, i_plus):
+                        field[x+k_plus, y+k_plus] == myColor
+                    break
+        
+        # 여섯번째 : (-,-)방향
+        if x <= 1 or y <= 1:
+            pass
+        else:
+            M = max(7-x,7-y)
+            maxCount = 8-M
+            # 둘중 큰값에 의해 탐색의 최대치가 정해진다.
+            for i_plus in range(1, maxCount):
+                if field[x-i_plus,y-i_plus] == color.empty.value:
+                    break
+                elif field[x-i_plus,y-i_plus] == myColor:
+                    for k_plus in range(1, i_plus):
+                        field[x-k_plus, y-k_plus] == myColor
+                    break
+                
+        # 일곱 여덟번째는 x,y가 서로 다른 부호를 같게 된다. (+,-) (-,+)
+        # 일곱번째 : (+,-)방향
+        if x >=6 or y <= 1:
+            pass
+        else:
+            M = max(x,7-y)
+            maxCount = 8-M
+            # 둘중 큰값에 의해 탐색의 최대치가 정해진다.
+            for i_plus in range(1, maxCount):
+                if field[x+i_plus,y-i_plus] == color.empty.value:
+                    break
+                elif field[x+i_plus,y-i_plus] == myColor:
+                    for k_plus in range(1, i_plus):
+                        field[x+k_plus, y-k_plus] == myColor
+                    break
+        
+        # 여덟번째 : (-,+)방향
+        if x <= 1 or y >= 6:
+            pass
+        else:
+            M = max(7-x,y)
+            maxCount = 8-M
+            # 둘중 큰값에 의해 탐색의 최대치가 정해진다.
+            for i_plus in range(1, maxCount):
+                if field[x-i_plus,y+i_plus] == color.empty.value:
+                    break
+                elif field[x-i_plus,y+i_plus] == myColor:
+                    for k_plus in range(1, i_plus):
+                        field[x-k_plus, y+k_plus] == myColor
+                    break
+        
+        # 이렇게 변경된 field를 반환해준다.
+        return field
 
 class color(Enum):
     black = 1
@@ -107,7 +231,8 @@ class othello:
 
     def NodeToField(self,arr):
         result = 0
-        if (arr.dtype == field.dtype):
+        if (arr.dtype == self.field.dtype):
+            # d타입을 field변수와 비교하여 다르면 에러(코드상으로 잘못되었는 경우)
             result = arr.reshape(8,8)
         else:
             E.err("othello:nodeToField:ERR-type miss match")
@@ -144,7 +269,7 @@ class othello:
         zeroIndex = np.where(node == 0)
         if (len(zeroIndex)==0):
             print("pass")
-            passCount += 1
+            self.passCount += 1
         else:
             print(zeroIndex)
 
@@ -156,11 +281,14 @@ class dealer():
     field = ""
     turn = ""
     noWay = False
+    scale = 8
 
     def __init__(self):
-        self.field = Field(8)
+        self.field = Field(self.scale)
         self.p1 = othello(self.field,first = "me").Link(self)
         self.p2 = othello(self.field,first = "you").Link(self,self.p1)
+        # Link() : 자신의 상대편을 명시한다.
+        # 이를 통해 dealer와 두 플레이어는 결속된다.
         self.p1.Link(self,self.p2)
         self.turn = self.p1
         self.field.display()
@@ -185,6 +313,27 @@ class dealer():
             self.modifyField(here,self.turn)
 
         self.turn = self.turn.opponent
-
         
+    def modifyField(self, here: int,turn: othello):
+        # 돌이 놓아짐으로서 변경을 반영하게 된다.
+        # here : 놓는 위치
+        # turn : othello인스턴스
+        
+        # 1. 상하좌우 및 대각선 방향의 8향을 탐색한다.
+        # 2. 각 방향당 아래를 실행(총 8번하게 된다)
+        # 3. 선택된 방향쪽에 나와 같은 색이 있는가?
+        # 4. YES -> 가장 가까운 색의 돌을 기억한다.
+        # 4.1 NO -> pass
+        # 5. 4번에서 탐색된 같은색의 돌과 방금 놓은 돌의 사이에 다른색의 돌로 가득 매워져있는가?
+        # 6. YES -> 사이의 돌을 전부 나와 같은색으로 변경
+        # 6.1 NO -> pass
+        # 7 방향을 바꿔서 7번 더 실행
+        
+        nodeList = Field.NodeToField(self.field)
+        if nodeList[here] != color.empty.value:
+            E.err("dealer:modifyField:ERR-node is not empty")
+        else:
+            #self.field[here/self.scale, here%self.scale] = turn.myColor
+            Field.Reverse(self.field, here, turn.myColor, self.scale)
+        return
 
